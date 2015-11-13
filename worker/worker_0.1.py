@@ -1,4 +1,4 @@
-import os,sys,imp,subprocess,time,shutil
+import os,sys,imp,subprocess,time,shutil,uuid
 import boto
 from boto.s3.key import Key
 
@@ -147,10 +147,10 @@ class Worker(object):
         outputFullFilenameLocal = os.path.join(outputDirLocal, outputFilename)
         createDirectory(outputDirLocal)
 
-        #Create input and output tmp folder using the timestamp which will be used to extract and zip input and output files
-        timestamp = str(time.time())
-        inputTempFileLocal = os.path.join(self.app_folder, 'data','algorithms',job['algorithm'],'tmp', timestamp, 'input', os.path.splitext(inputFilename)[0])
-        outputTempFileLocal = os.path.join(self.app_folder, 'data','algorithms',job['algorithm'],'tmp', timestamp,'output', os.path.splitext(inputFilename)[0])
+        #Create input and output tmp folder using a unique id which will be used to extract and zip input and output files
+        uniqueid = str(uuid.uuid4())
+        inputTempFileLocal = os.path.join(self.app_folder, 'data','algorithms',job['algorithm'],'tmp', uniqueid, 'input', os.path.splitext(inputFilename)[0])
+        outputTempFileLocal = os.path.join(self.app_folder, 'data','algorithms',job['algorithm'],'tmp', uniqueid,'output', os.path.splitext(inputFilename)[0])
         createDirectory(inputTempFileLocal)
         createDirectory(outputTempFileLocal)
 
@@ -205,7 +205,7 @@ class Worker(object):
         try:
             os.remove(outputFullFilenameLocal)
             os.remove(inputFullFilenameLocal)
-            shutil.rmtree(os.path.join(self.app_folder, 'data','algorithms',job['algorithm'],'tmp', timestamp))
+            shutil.rmtree(os.path.join(self.app_folder, 'data','algorithms',job['algorithm'],'tmp', uniqueid))
             pass
         except:
             libReport(error,"Could not delete one or more of the temporary data folders")
